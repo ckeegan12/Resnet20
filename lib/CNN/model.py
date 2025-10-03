@@ -4,7 +4,7 @@ from make_layer import Layer
 
 
 class ResNet20(nn.Module):
-    def __init__(self, block, num_classes=10):
+    def __init__(self, num_classes=10):
         super(ResNet20, self).__init__()
         # Initial convolution layer
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
@@ -20,7 +20,7 @@ class ResNet20(nn.Module):
         self.fc = nn.Linear(64, num_classes)
 
     def forward(self, x):
-        out = self.conv1(out)
+        out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
         out = self.layer1.forward(out)
