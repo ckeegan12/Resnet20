@@ -14,20 +14,20 @@ class model_training:
 
         self.size = len(train_loader)
 
-    def foward(self, device):
+    def forward(self, device):
         print(f"Start Training for {self.epochs} epochs")
         train_loss_list = []
-        epoch_losses = []
 
         for epoch in range(self.epochs):
             print(f"training cycle: {epoch}")
+            epoch_losses = []
             self.model.train()
 
             for i, (images, labels) in enumerate(self.train_loader):
                 images = images.to(device)
                 labels = labels.to(device)
 
-                # foward pass
+                # forward pass
                 outputs = self.model(images)
                 loss = self.criterion(outputs, labels)
 
@@ -38,7 +38,7 @@ class model_training:
 
                 epoch_losses.append(loss.item())
 
-                if (i % 100) == 0:
+                if (i % 1000) == 0:
                     print(f'Epoch {epoch}, Step {i+1}, Loss: {loss.item():.4f}')
 
             # Calculate average for this epoch only

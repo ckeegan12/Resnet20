@@ -12,9 +12,9 @@ class ResNet20(nn.Module):
         self.relu = nn.ReLU()
         
         # Residual layers
-        self.layer1 = Layer(16, 3)
-        self.layer2 = Layer(32, 3)
-        self.layer3 = Layer(64, 3)
+        self.layer1 = Layer(16, 16, num_blocks=3)
+        self.layer2 = Layer(16, 32, num_blocks=3)
+        self.layer3 = Layer(32, 64, num_blocks=3)
         
         # Fully connected layers
         self.fc = nn.Linear(64, num_classes)
@@ -23,9 +23,9 @@ class ResNet20(nn.Module):
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
-        out = self.layer1.forward(out)
-        out = self.layer2.forward(out)
-        out = self.layer3.forward(out)
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
         out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1) 
         out = self.fc(out)
