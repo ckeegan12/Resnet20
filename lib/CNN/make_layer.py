@@ -5,8 +5,8 @@ class Layer(nn.Module):
   """
   Layer make-up for the model using the Residual blocks
   """
-  def __intit__(self, in_channels, out_channels, num_blocks=3):
-    super(Layer,self).__intit__()
+  def __init__(self, in_channels, out_channels, num_blocks=3):
+    super(Layer, self).__init__()
     self.in_channels = in_channels
     self.out_channels = out_channels
   
