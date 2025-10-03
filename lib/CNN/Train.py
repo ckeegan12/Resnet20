@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch.optim as optim
 
-class model_testing:
-    def __intit__(self, model, lr, train_loader, epochs):
+class model_training:
+    def __init__(self, model, lr, train_loader, epochs):
         self.model = model
         self.lr = lr
         self.train_loader = train_loader
