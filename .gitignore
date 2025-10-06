@@ -1,0 +1,3 @@
+lib/CNN/data/*.tar.gz
+lib/CNN/data/*.zip
+lib/CNN/data/cifar-10-batches-py/
