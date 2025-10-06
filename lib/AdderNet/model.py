@@ -1,24 +1,32 @@
-import torch
 import torch.nn as nn
-from Adder import adder2d_function
+from Adder import adder2d
 
 class AdderNet(nn.Module):
-
-    def __init__(self,input_channel,output_channel,kernel_size, stride=1, padding=0, bias = False):
+    def __init__(self, num_classes=10):
         super(AdderNet, self).__init__()
-        self.stride = stride
-        self.padding = padding
-        self.input_channel = input_channel
-        self.output_channel = output_channel
-        self.kernel_size = kernel_size
-        self.adder = torch.nn.Parameter(nn.init.normal_(torch.randn(output_channel,input_channel,kernel_size,kernel_size)))
-        self.bias = bias
-        if bias:
-            self.b = torch.nn.Parameter(nn.init.uniform_(torch.zeros(output_channel)))
-
-    def forward(self, x):
-        output = adder2d_function(x,self.adder, self.stride, self.padding)
-        if self.bias:
-            output += self.b.unsqueeze(0).unsqueeze(2).unsqueeze(3)
         
-        return output
+        self.features = nn.Sequential(
+            adder2d(3, 64, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            
+            adder2d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            
+            adder2d(128, 256, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+        
+        self.classifier = nn.Sequential(
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+            nn.Linear(256, 128),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
+            nn.Linear(128, num_classes)
+        )
