@@ -22,12 +22,9 @@ class ResidualBlock(nn.Module):
     out = self.bn2(out)
 
     # downsampling handling
-    if self.downsample:
-      if isinstance(self.downsample, tuple):
-        residual = self.downsample[0](x)
-        residual = self.downsample[1](residual)
-      else:
-        residual = self.downsample(x)
+    if self.downsample is not None:
+      residual = self.downsample[0](x)
+      residual = self.downsample[1](residual)
 
     out += residual
     out = self.relu(out)
