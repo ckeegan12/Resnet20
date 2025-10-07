@@ -9,7 +9,7 @@ class model_training:
         self.epochs = epochs
 
         # Optimizer and loss function
-        self.optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.01)
+        self.optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.5e-4)
         self.criterion = nn.CrossEntropyLoss()
 
         self.size = len(train_loader)
