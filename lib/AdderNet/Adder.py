@@ -16,11 +16,11 @@ def adder2d_function(X, W, stride=1, padding=0):
 
     # X_unfolded shape: (n_x, d_filter*h_filter*w_filter, h_out*w_out)
     X_unfolded = nn.functional.unfold(
-    X, 
-    kernel_size=(h_filter, w_filter), 
-    dilation=1, 
-    padding=padding, 
-    stride=stride
+        X, 
+        kernel_size=(h_filter, w_filter), 
+        dilation=1, 
+        padding=padding, 
+        stride=stride
     )
     X_col = X_unfolded.permute(1, 2, 0) # Rearrange dimensions: (batch, features, locations) -> (features, locations, batch)
     X_col = X_col.contiguous()
@@ -44,7 +44,7 @@ class adder(Function):
 
     @staticmethod
     def backward(ctx,grad_output):
-        W_col,X_col = ctx.saved_tensors
+        W_col, X_col = ctx.saved_tensors
         grad_W_col = ((X_col.unsqueeze(0)-W_col.unsqueeze(2))*grad_output.unsqueeze(1)).sum(2)
         grad_W_col = grad_W_col/grad_W_col.norm(p=2).clamp(min=1e-12)*math.sqrt(W_col.size(1)*W_col.size(0))/5
         grad_X_col = (-(X_col.unsqueeze(0)-W_col.unsqueeze(2)).clamp(-1,1)*grad_output.unsqueeze(1)).sum(0)
@@ -60,7 +60,7 @@ class adder2d(nn.Module):
         self.input_channel = input_channel
         self.output_channel = output_channel
         self.kernel_size = kernel_size
-        self.adder = torch.nn.Parameter(nn.init.normal_(torch.randn(output_channel,input_channel,kernel_size,kernel_size)))
+        self.adder = torch.nn.Parameter(nn.init.normal_(torch.randn(output_channel, input_channel, kernel_size, kernel_size)))
         self.bias = bias
         if bias:
             self.b = torch.nn.Parameter(nn.init.uniform_(torch.zeros(output_channel)))
