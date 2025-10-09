@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -6,22 +7,18 @@ class model_training:
         self.model = model
         self.train_loader = train_loader
         self.epochs = epochs
+        self.optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=5e-4)
+        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=50, gamma=0.1)
 
         self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, device):
         print(f"Start Training for {self.epochs} epochs")
         train_loss_list = []
-        lr = 0.1
-        optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=0.5e-4)
 
         for epoch in range(self.epochs):
             epoch_losses = []
             self.model.train()
-
-            if epoch // 50:
-                lr = lr * 0.1**(epoch // 50 - 1) 
-                optimizer = optim.Adam(self.model.parameters(), lr=lr, weight_decay=0.5e-4)
 
             correct = 0
             total = 0
@@ -38,11 +35,13 @@ class model_training:
                 correct += predicted.eq(labels).sum().item()
 
                 # back pass
-                optimizer.zero_grad()
+                self.optimizer.zero_grad()
                 loss.backward()
-                optimizer.step()
+                self.optimizer.step()
 
                 epoch_losses.append(loss.item())
+            
+            self.scheduler.step()
 
             # Calculate average for this epoch only
             epoch_loss = sum(epoch_losses) / len(epoch_losses)
