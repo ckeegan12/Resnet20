@@ -22,6 +22,8 @@ class ResNet20(nn.Module):
 
         if load_weights is True:
             self.load_manual_weights(load_weights)
+        
+        self.activations = {}
 
     def load_manual_weights(self, weights_dict):
 
@@ -34,13 +36,23 @@ class ResNet20(nn.Module):
                 if name in weights_dict:
                     buffer.copy_(weights_dict[name])
 
-    def forward(self, x):
+    def forward(self, x, save_activations = False):
+        if save_activations:
+            self.activations['input_activation'] = x
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
+        if save_activations:
+            self.activations['prelayer_activation'] = out
         out = self.layer1(out)
+        if save_activations:
+            self.activations['layer1_activation'] = out
         out = self.layer2(out)
+        if save_activations:
+            self.activations['layer2_activation'] = out
         out = self.layer3(out)
+        if save_activations:
+            self.activations['layer3_activation'] = out
         out = F.avg_pool2d(out, 8)
         out = out.view(out.size(0), -1) 
         out = self.fc(out)
