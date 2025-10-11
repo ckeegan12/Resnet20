@@ -7,7 +7,7 @@ class model_training:
         self.model = model
         self.train_loader = train_loader
         self.epochs = epochs
-        self.optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=5e-4)
+        self.optimizer = optim.Adam(model.parameters(), lr=0.1, weight_decay=5e-4)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=50, gamma=0.1)
 
         self.criterion = nn.CrossEntropyLoss()
