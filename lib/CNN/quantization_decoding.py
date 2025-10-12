@@ -8,7 +8,11 @@ class Quant_decode:
     """
     
     fp32_tensor = quant_tensor * scale
-    quant_error = fp32_tensor - original_tensor
+
+    fp32_array = fp32_tensor.cpu().numpy().flatten()
+    original_array = original_tensor.cpu().numpy().flatten()
+
+    quant_error = fp32_array - original_array
     max_error = np.max(np.abs(quant_error))
 
     return fp32_tensor, max_error

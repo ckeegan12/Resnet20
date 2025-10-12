@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 class Quant:
   @staticmethod
@@ -31,5 +32,6 @@ class Quant:
       # Quantize the parameters
       quantized = Quant.clamp(np.round(params / scale), lower_bound, upper_bound).astype(np.int32)
       quantized_tensor = quantized.reshape(original_shape)
+      quantized_tensor = torch.from_numpy(quantized_tensor)
 
       return quantized_tensor, scale
