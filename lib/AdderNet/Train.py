@@ -9,7 +9,7 @@ class model_training:
     self.epochs = epochs
 
     # Optimizer and loss function
-    self.optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=5e-4)
+    self.optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
     self.criterion = nn.CrossEntropyLoss()
 
     self.size = len(train_loader)
@@ -19,9 +19,11 @@ class model_training:
     train_loss_list = []
 
     for epoch in range(self.epochs):
-      # print(f"training cycle: {epoch}")
       epoch_losses = []
       self.model.train()
+
+      correct = 0
+      total = 0
 
       for i, (images, labels) in enumerate(self.train_loader):
         images = images.to(device)
@@ -30,6 +32,9 @@ class model_training:
         # forward pass
         outputs = self.model(images)
         loss = self.criterion(outputs, labels)
+        _, predicted = outputs.max(1)
+        total += labels.size(0)
+        correct += predicted.eq(labels).sum().item()
 
         # back pass
         self.optimizer.zero_grad()
@@ -37,14 +42,10 @@ class model_training:
         self.optimizer.step()
 
         epoch_losses.append(loss.item())
-        """
-        if (i % 1000) == 0:
-          print(f'Epoch {epoch}, Step {i+1}, Loss: {loss.item():.4f}')
-        """
-
+      
       # Calculate average for this epoch only
       epoch_loss = sum(epoch_losses) / len(epoch_losses)
       train_loss_list.append(epoch_loss)  
-      print(f'Epoch [{epoch+1}/{self.epochs}], Average Loss: {epoch_loss:.4f}')
-        
+      print(f'Epoch [{epoch+1}/{self.epochs}], Average Loss: {epoch_loss:.4f}, Accuracy: {100. * (correct/total):.2f}')
+      
     return train_loss_list
