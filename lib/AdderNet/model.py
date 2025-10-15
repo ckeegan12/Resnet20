@@ -5,7 +5,7 @@ from Adder import adder2d
 from Layer import Layer
 
 class AdderNet(nn.Module):
-    def __init__(self, num_classes=10):
+    def __init__(self, num_classes=10, load_weights = False):
         super(AdderNet, self).__init__()
         # Initial convolution layer for AdderNet
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
@@ -19,6 +19,11 @@ class AdderNet(nn.Module):
         
         # Fully connected layers
         self.fc = nn.Linear(64, num_classes)
+
+        if load_weights is True:
+            self.load_manual_weights(load_weights)
+        
+        self.activations = {}
 
     def load_manual_weights(self, weights_dict):
 
