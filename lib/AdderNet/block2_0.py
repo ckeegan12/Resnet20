@@ -7,10 +7,10 @@ class ResidualBlock2_0(nn.Module):
   """
   def __init__(self, in_channels, out_channels, bits, kernel_size=3, stride=1, padding=1, downsample=None):
     super(ResidualBlock2_0, self).__init__()
-    self.adder1 = adder2d2_0(in_channels, out_channels, kernel_size, bits, stride, padding, bias=False, bits=bits)
+    self.adder1 = adder2d2_0(in_channels, out_channels, kernel_size, bits, stride, padding, bias=False)
     self.bn1 = nn.BatchNorm2d(out_channels)
     self.relu = nn.ReLU()
-    self.adder2 = adder2d2_0(out_channels, out_channels, kernel_size, bits, stride=1, padding=padding, bias=False, bits=bits)
+    self.adder2 = adder2d2_0(out_channels, out_channels, kernel_size, bits, stride=1, padding=padding, bias=False)
     self.bn2 = nn.BatchNorm2d(out_channels)
     self.downsample = downsample
 

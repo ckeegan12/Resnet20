@@ -53,7 +53,10 @@ class adder2d2_0(nn.Module):
         self.output_channel = output_channel
         self.kernel_size = kernel_size
         self.bits = bits
-        self.adder = torch.nn.Parameter(nn.init.normal_(torch.randn(output_channel, input_channel * kernel_size * kernel_size), 0, 0.01))
+        self.adder = torch.nn.Parameter(
+            nn.init.normal_(
+                torch.randn(output_channel, input_channel, kernel_size, kernel_size), 0, 0.01)
+                )
 
     def forward(self, x):
         n_x, d_x, h_x, w_x = x.size()
@@ -80,5 +83,5 @@ class adder2d2_0(nn.Module):
         out = adder2_0.apply(W_col, X_col, self.bits)
         
         out = out.view(n_filters, h_out, w_out, n_x)
-        out = out.permute(3, 0, 1, 2)
+        out = out.permute(3, 0, 1, 2).contiguous()
         return out
