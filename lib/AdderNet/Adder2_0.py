@@ -12,7 +12,8 @@ class adder2_0(Function):
         q_bits = bits
         
         alpha = W_col.abs().max()
-        scale = alpha / torch.tensor((2**(q_bits-1) - 1), dtype=W_col.dtype).clamp(min=1e-6)
+        scale = alpha / (2**(q_bits-1) - 1)
+        scale = scale.clamp(min=1e-6)
         
         q_min = -(2**(q_bits-1))
         q_max = 2**(q_bits-1) - 1
@@ -55,8 +56,9 @@ class adder2d2_0(nn.Module):
         self.bits = bits
         self.adder = torch.nn.Parameter(
             nn.init.normal_(
-                torch.randn(output_channel, input_channel, kernel_size, kernel_size), 0, 0.01)
-                )
+                torch.randn(output_channel, input_channel, kernel_size, kernel_size)
+            )
+        )
 
     def forward(self, x):
         n_x, d_x, h_x, w_x = x.size()
@@ -84,4 +86,5 @@ class adder2d2_0(nn.Module):
         
         out = out.view(n_filters, h_out, w_out, n_x)
         out = out.permute(3, 0, 1, 2).contiguous()
+        
         return out
