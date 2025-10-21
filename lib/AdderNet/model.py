@@ -69,7 +69,7 @@ class AdderNet(nn.Module):
     
 class AdderNet2_0(nn.Module):
     def __init__(self, bits, num_classes=10, load_weights = None):
-        super(AdderNet, self).__init__()
+        super(AdderNet2_0, self).__init__()
         # Initial convolution layer for AdderNet
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)

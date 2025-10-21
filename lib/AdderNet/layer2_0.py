@@ -15,7 +15,7 @@ class Layer2_0(nn.Module):
       stride = 1
 
       if in_channels != out_channels:
-          self.downsample_adder = adder2d2_0(in_channels, out_channels, kernel_size=1, stride=2, padding=0, bias=False)
+          self.downsample_adder = adder2d2_0(in_channels, out_channels, kernel_size=1, bits=bits, stride=2, padding=0, bias=False)
           self.downsample_bn = nn.BatchNorm2d(out_channels)
           downsample = (self.downsample_adder, self.downsample_bn)
           stride = 2
