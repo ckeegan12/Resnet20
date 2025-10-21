@@ -9,8 +9,8 @@ class Quant_decode:
     """
     original_shape = quant_tensor.shape
 
-    quant_array = quant_tensor.cpu().numpy().flatten()
-    original_array = original_tensor.cpu().numpy().flatten()
+    quant_array = quant_tensor.detach().cpu().numpy().flatten().astype(np.float32)
+    original_array = original_tensor.detach().cpu().numpy().flatten().astype(np.float32)
 
     scaled_array = quant_array * scale
     fp32_tensor = torch.from_numpy(scaled_array.reshape(original_shape))
