@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 class Quant_decode:
   def dequant(scale: float, quant_tensor, original_tensor):
@@ -12,7 +13,7 @@ class Quant_decode:
     original_array = original_tensor.cpu().numpy().flatten()
 
     scaled_array = quant_array * scale
-    fp32_tensor = scaled_array.reshape(original_shape) 
+    fp32_tensor = torch.from_numpy(scaled_array.reshape(original_shape))
     quant_error = scaled_array - original_array
     max_error = np.max(np.abs(quant_error))
 

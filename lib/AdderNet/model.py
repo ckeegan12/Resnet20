@@ -30,11 +30,15 @@ class AdderNet(nn.Module):
         with torch.no_grad():
             for name, param in self.named_parameters():
                 if name in weights_dict:
-                    param.copy_(weights_dict[name])
+                  weight_value = weights_dict[name]
+                  weight_value = weight_value.to(param.device)
+                  param.copy_(weight_value)
             
             for name, buffer in self.named_buffers():
                 if name in weights_dict:
-                    buffer.copy_(weights_dict[name])
+                    buffer_value = weights_dict[name]
+                    buffer_value = buffer_value.to(buffer.device)
+                    buffer.copy_(buffer_value)
 
     def forward(self, x, save_activations = False):
         if save_activations:
