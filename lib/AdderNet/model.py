@@ -42,21 +42,21 @@ class AdderNet(nn.Module):
 
     def forward(self, x, save_activations = False):
         if save_activations:
-            self.activations['input_activation_2.0'] = x.clone()
+            self.activations['input_activation'] = x.clone()
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
         if save_activations:
-            self.activations['prelayer_activation_2.0'] = out.clone()
+            self.activations['prelayer_activation'] = out.clone()
         out = self.layer1(out)
         if save_activations:
-            self.activations['layer1_activation_2.0'] = out.clone()
+            self.activations['layer1_activation'] = out.clone()
         out = self.layer2(out)
         if save_activations:
-            self.activations['layer2_activation_2.0'] = out.clone()
+            self.activations['layer2_activation'] = out.clone()
         out = self.layer3(out)
         if save_activations:
-            self.activations['layer3_activation_2.0'] = out.clone()
+            self.activations['layer3_activation'] = out.clone()
         out = F.avg_pool2d(out, 8)
         out = self.fc(out)
         out = self.bn2(out)
@@ -68,7 +68,7 @@ class AdderNet(nn.Module):
         return F.softmax(out, dim=1)
     
 class AdderNet2_0(nn.Module):
-    def __init__(self, num_classes=10, load_weights = None):
+    def __init__(self, bits, num_classes=10, load_weights = None):
         super(AdderNet, self).__init__()
         # Initial convolution layer for AdderNet
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
@@ -76,9 +76,9 @@ class AdderNet2_0(nn.Module):
         self.relu = nn.ReLU()
         
         # Residual layers
-        self.layer1 = Layer2_0(16, 16, num_blocks=3)
-        self.layer2 = Layer2_0(16, 32, num_blocks=3)
-        self.layer3 = Layer2_0(32, 64, num_blocks=3)
+        self.layer1 = Layer2_0(16, 16, num_blocks=3, bits=bits)
+        self.layer2 = Layer2_0(16, 32, num_blocks=3, bits=bits)
+        self.layer3 = Layer2_0(32, 64, num_blocks=3, bits=bits)
         
         # Fully connected layers
         self.fc = nn.Conv2d(64, num_classes, 1, bias=False)
@@ -105,21 +105,21 @@ class AdderNet2_0(nn.Module):
 
     def forward(self, x, save_activations = False):
         if save_activations:
-            self.activations['input_activation'] = x.clone()
+            self.activations['input_activation_2.0'] = x.clone()
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
         if save_activations:
-            self.activations['prelayer_activation'] = out.clone()
+            self.activations['prelayer_activation_2.0'] = out.clone()
         out = self.layer1(out)
         if save_activations:
-            self.activations['layer1_activation'] = out.clone()
+            self.activations['layer1_activation_2.0'] = out.clone()
         out = self.layer2(out)
         if save_activations:
-            self.activations['layer2_activation'] = out.clone()
+            self.activations['layer2_activation_2.0'] = out.clone()
         out = self.layer3(out)
         if save_activations:
-            self.activations['layer3_activation'] = out.clone()
+            self.activations['layer3_activation_2.0'] = out.clone()
         out = F.avg_pool2d(out, 8)
         out = self.fc(out)
         out = self.bn2(out)

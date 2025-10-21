@@ -45,7 +45,7 @@ class adder2_0(Function):
     
 class adder2d2_0(nn.Module):
 
-    def __init__(self, input_channel, output_channel, kernel_size, stride=1, padding=0, bias = False, bits=8):
+    def __init__(self, input_channel, output_channel, kernel_size, bits, stride=1, padding=0, bias = False):
         super(adder2d2_0, self).__init__()
         self.stride = stride
         self.padding = padding

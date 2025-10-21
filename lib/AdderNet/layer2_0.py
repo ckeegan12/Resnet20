@@ -6,7 +6,7 @@ class Layer2_0(nn.Module):
   """
   Layer make-up for the AdderNet model using the Residual blocks with adder operations only
   """
-  def __init__(self, in_channels, out_channels, num_blocks=3):
+  def __init__(self, in_channels, out_channels, bits, num_blocks=3):
       super(Layer2_0, self).__init__()
       self.in_channels = in_channels
       self.out_channels = out_channels
@@ -25,10 +25,10 @@ class Layer2_0(nn.Module):
       self.blocks = nn.ModuleList()
 
       self.blocks.append(ResidualBlock2_0(in_channels=in_channels, out_channels=out_channels, 
-                                      stride=stride, downsample=downsample))
+                                      stride=stride, downsample=downsample, bits=bits))
 
       for _ in range(num_blocks - 1):
-          self.blocks.append(ResidualBlock2_0(in_channels=out_channels, out_channels=out_channels, padding=1))
+          self.blocks.append(ResidualBlock2_0(in_channels=out_channels, out_channels=out_channels, padding=1, bits=bits))
   
   def forward(self, x):
       out = x
