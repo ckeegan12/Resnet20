@@ -3,14 +3,14 @@ from Adder2_0 import adder2d2_0
 
 class ResidualBlock2_0(nn.Module):
   """
-  Residual Blocks for AdderNet for a 3x3 kernel, stride of 1, and no downsampling
+  Residual Blocks for AdderNet2.0 for a 3x3 kernel, stride of 1, and no downsampling
   """
-  def __init__(self, in_channels, out_channels, bits, kernel_size=3, stride=1, padding=1, downsample=None):
+  def __init__(self, in_channels, out_channels, bits, max_delta=2.5, kernel_size=3, stride=1, padding=1, downsample=None):
     super(ResidualBlock2_0, self).__init__()
-    self.adder1 = adder2d2_0(in_channels, out_channels, kernel_size, bits, stride, padding, bias=False)
+    self.adder1 = adder2d2_0(in_channels, out_channels, kernel_size, bits, max_delta, stride, padding, bias=False)
     self.bn1 = nn.BatchNorm2d(out_channels)
     self.relu = nn.ReLU()
-    self.adder2 = adder2d2_0(out_channels, out_channels, kernel_size, bits, stride=1, padding=padding, bias=False)
+    self.adder2 = adder2d2_0(out_channels, out_channels, kernel_size, bits, max_delta, stride=1, padding=padding, bias=False)
     self.bn2 = nn.BatchNorm2d(out_channels)
     self.downsample = downsample
 

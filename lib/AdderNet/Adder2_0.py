@@ -5,32 +5,45 @@ from torch.autograd import Function
 import math
 
 class adder2_0(Function):
+    """
+    AdderNet 2.0 with Activation-Oriented Quantization (AOQ)
+    """
     @staticmethod
-    def forward(ctx, W_col, X_col, bits): 
+    def forward(ctx, W_col, X_col, bits, max_delta): 
         ctx.save_for_backward(W_col, X_col)
+        ctx.bits = bits
         
         q_bits = bits
         
-        alpha = W_col.abs().max()
-        scale = alpha / (2**(q_bits-1) - 1)
-        scale = scale.clamp(min=1e-6)
+        # AOQ: Use clipped activation quantization with max_delta
+        delta_prime = max_delta
         
+        # Quantization bounds
         q_min = -(2**(q_bits-1))
         q_max = 2**(q_bits-1) - 1
         
-        W_q = torch.round(W_col / scale)
+        # Weight clipping using AOQ
+        # W_clip is quantized to q-bit with the activation-oriented scale
+        W_q = torch.round(W_col / delta_prime)
         W_clip_q = torch.clamp(W_q, q_min, q_max)
         
-        W_clip = W_clip_q * scale
+        # Dequantize clipped weights
+        W_clip = W_clip_q * delta_prime
         
-        # W_bias = -|W - W_clip|
+        # Calculate weight bias: W_bias = -|W - W_clip|
+        # This represents the bias introduced by weight clipping
         W_bias = -(W_col - W_clip).abs()
+        
+        # Sum weight bias per filter (across all kernel elements)
         sum_W_bias_per_filter = W_bias.sum(dim=1)
         
-        # New_SAD = -sum|X - W_clip|
+        # Compute clipped SAD: New_SAD = -sum|X - W_clip|
+        # Using clipped weights instead of original weights
         New_SAD = -(W_clip.unsqueeze(2) - X_col.unsqueeze(0)).abs().sum(1)
         
-        # output = New_SAD + sum W_bias
+        # Final output: restore original SAD by adding back weight bias
+        # output = New_SAD + sum(W_bias)
+        # This is mathematically equivalent to -sum|X - W|
         output = New_SAD + sum_W_bias_per_filter.unsqueeze(1)
         
         return output
@@ -46,7 +59,7 @@ class adder2_0(Function):
     
 class adder2d2_0(nn.Module):
 
-    def __init__(self, input_channel, output_channel, kernel_size, bits, stride=1, padding=0, bias = False):
+    def __init__(self, input_channel, output_channel, kernel_size, bits, max_delta=2.5, stride=1, padding=0, bias = False):
         super(adder2d2_0, self).__init__()
         self.stride = stride
         self.padding = padding
@@ -54,6 +67,7 @@ class adder2d2_0(nn.Module):
         self.output_channel = output_channel
         self.kernel_size = kernel_size
         self.bits = bits
+        self.max_delta = max_delta
         self.adder = torch.nn.Parameter(
             nn.init.normal_(
                 torch.randn(output_channel, input_channel, kernel_size, kernel_size)

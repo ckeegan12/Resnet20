@@ -68,17 +68,20 @@ class AdderNet(nn.Module):
         return F.softmax(out, dim=1)
     
 class AdderNet2_0(nn.Module):
-    def __init__(self, bits, num_classes=10, load_weights = None):
+    def __init__(self, bits, max_delta=2.5,  num_classes=10, load_weights = None):
         super(AdderNet2_0, self).__init__()
+        self.bits = bits
+        self.max_delta = max_delta
+
         # Initial convolution layer for AdderNet
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)
         self.relu = nn.ReLU()
         
         # Residual layers
-        self.layer1 = Layer2_0(16, 16, num_blocks=3, bits=bits)
-        self.layer2 = Layer2_0(16, 32, num_blocks=3, bits=bits)
-        self.layer3 = Layer2_0(32, 64, num_blocks=3, bits=bits)
+        self.layer1 = Layer2_0(16, 16, num_blocks=3, bits=bits, max_delta=max_delta)
+        self.layer2 = Layer2_0(16, 32, num_blocks=3, bits=bits, max_delta=max_delta)
+        self.layer3 = Layer2_0(32, 64, num_blocks=3, bits=bits, max_delta=max_delta)
         
         # Fully connected layers
         self.fc = nn.Conv2d(64, num_classes, 1, bias=False)
