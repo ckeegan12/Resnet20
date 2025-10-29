@@ -96,7 +96,7 @@ class adder2d2_0(nn.Module):
 
         W_col = self.adder.view(n_filters, -1)
 
-        out = adder2_0.apply(W_col, X_col, self.bits)
+        out = adder2_0.apply(W_col, X_col, self.bits, self.max_delta)
         
         out = out.view(n_filters, h_out, w_out, n_x)
         out = out.permute(3, 0, 1, 2).contiguous()
