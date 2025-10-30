@@ -20,8 +20,7 @@ class adder2_0(Function):
         
         # Eq. 5: Weight clipping
         W_q = torch.round(W_col / delta_prime)
-        W_clip_q = torch.clamp(W_q, q_min, q_max)
-        W_clip = W_clip_q * delta_prime
+        W_clip = torch.clamp(W_q, q_min, q_max)
         
         # Eq. 6: W_bias = -|W - W_clip|
         W_bias = -(W_col - W_clip).abs()
