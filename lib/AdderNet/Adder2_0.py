@@ -22,15 +22,18 @@ class adder2_0(Function):
         W_q = torch.round(W_col / delta_prime)
         W_clip = torch.clamp(W_q, q_min, q_max)
         
-        # Eq. 6: W_bias = -|W - W_clip|
-        W_bias = -(W_col - W_clip).abs()
+        # Eq. 6: W_bias = -|W_q - W_clip|
+        W_bias = -(W_q - W_clip).abs()
         sum_W_bias_per_filter = W_bias.sum(dim=1)  # (out_channels,)
         
         # Eq. 7: -Σ|X - W_clip|
         New_SAD = -(W_clip.unsqueeze(2) - X_col.unsqueeze(0)).abs().sum(1)
         
-        # Eq. 7: output = New_SAD + ΣW_bias
-        output = New_SAD + sum_W_bias_per_filter.unsqueeze(1)  # (out_channels, locations*batch)
+        # Eq. 7: output = New_SAD (bias will be handled by BN)
+        output = New_SAD
+
+        # Store weight bias for BN to use
+        ctx.weight_bias = sum_W_bias_per_filter
         
         return output
 
@@ -82,11 +85,24 @@ class adder2d2_0(nn.Module):
         # W_col: (out_channels, in_channels*k*k)
         W_col = self.adder.view(n_filters, -1)
 
-
         out = adder2_0.apply(W_col, X_col, self.bits, self.max_delta)
+
+        # Compute and store weight bias
+        with torch.no_grad():
+            q_bits = self.bits
+            delta_prime = self.max_delta
+            q_min = -(2**(q_bits-1))
+            q_max = 2**(q_bits-1) - 1
+            W_q = torch.round(W_col / delta_prime)
+            W_clip = torch.clamp(W_q, q_min, q_max)
+            W_bias = (W_q - W_clip).abs()
+            self.weight_bias = W_bias.sum(dim=1)
         
         # out: (batch, out_channels, h_out, w_out)
         out = out.view(n_filters, h_out, w_out, n_x)
         out = out.permute(3, 0, 1, 2).contiguous()
         
         return out
+    def get_weight_bias(self):
+        """Returns the weight bias to be added to BN running_mean"""
+        return self.weight_bias
