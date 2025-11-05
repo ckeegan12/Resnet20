@@ -5,9 +5,10 @@ class BatchNorm2dWithAdderBias(nn.BatchNorm2d):
     BatchNorm2d that adds weight bias from adder operation to running_mean
     and quantizes the bias term by delta
     """
-    def __init__(self, num_features, delta=None, eps=1e-5, momentum=0.1, affine=True):
+    def __init__(self, num_features, bits, max_val=2.5, eps=1e-5, momentum=0.1, affine=True):
         super(BatchNorm2dWithAdderBias, self).__init__(num_features, eps, momentum, affine)
-        self.delta = delta
+        self.bits = bits
+        self.delta = max_val / (2**(bits-1) - 1)
         self.adder_weight_bias = None
     
     def set_adder_weight_bias(self, weight_bias):

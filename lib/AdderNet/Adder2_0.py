@@ -12,11 +12,12 @@ class adder2_0(Function):
         ctx.bits = bits
         
         q_bits = bits
-        delta_prime = max_delta
         
         # Quantization bounds: [-2^(q-1), 2^(q-1)-1]
         q_min = -(2**(q_bits-1))
         q_max = 2**(q_bits-1) - 1
+
+        delta_prime = max_delta / (q_max)
         
         # Eq. 5: Weight clipping
         W_q = torch.round(W_col / delta_prime)
@@ -47,7 +48,7 @@ class adder2_0(Function):
     
 class adder2d2_0(nn.Module):
     def __init__(self, input_channel, output_channel, kernel_size, bits, 
-                 max_delta=2.5, stride=1, padding=0, bias=False):
+                 max_val=2.5, stride=1, padding=0, bias=False):
         super(adder2d2_0, self).__init__()
         self.stride = stride
         self.padding = padding
@@ -55,7 +56,7 @@ class adder2d2_0(nn.Module):
         self.output_channel = output_channel
         self.kernel_size = kernel_size
         self.bits = bits
-        self.max_delta = max_delta
+        self.max_delta = max_val / (2**(bits-1) - 1)
         
         # (out_channels, in_channels, k, k)
         self.adder = torch.nn.Parameter(
