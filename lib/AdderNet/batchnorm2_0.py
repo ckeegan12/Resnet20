@@ -1,9 +1,13 @@
 import torch.nn as nn
+import torch
 
 class BatchNorm2dWithAdderBias(nn.BatchNorm2d):
     """
-    BatchNorm2d that adds weight bias from adder operation to running_mean
-    and quantizes the bias term by delta
+    BatchNorm2d that implements the equation:
+    Y = α * (-Σ|X - W_clip|) / √(σ² + ε) + (β - α * (μ - ΣW_bias) / √(σ² + ε))
+    
+    Note: W_bias from adder is negative: W_bias = -(W_q - W_clip).abs()
+    So: μ - W_bias = μ - (W_q - W_clip).abs()
     """
     def __init__(self, num_features, bits, max_val=2.5, eps=1e-5, momentum=0.1, affine=True):
         super(BatchNorm2dWithAdderBias, self).__init__(num_features, eps, momentum, affine)
@@ -12,35 +16,45 @@ class BatchNorm2dWithAdderBias(nn.BatchNorm2d):
         self.adder_weight_bias = None
     
     def set_adder_weight_bias(self, weight_bias):
-        self.adder_weight_bias = weight_bias
+        if weight_bias is not None:
+            self.adder_weight_bias = weight_bias.detach()
+        else:
+            self.adder_weight_bias = None
     
     def forward(self, x):
         if self.training:
             # During training, use standard batch norm
             return super().forward(x)
         else:
-            # running_mean_modified = running_mean + weight_bias
-            # bias_quantized = bias / delta
+            # Inference mode - implement the AdderNet 2.0 FBR
+            # Y = α * x / √(σ² + ε) + (β - α * (μ - ΣW_bias) / √(σ² + ε))
+            # where x is already -Σ|X - W_clip| from the adder layer
             
-            if self.adder_weight_bias is not None:
-                # Add weight bias to running mean
-                running_mean_modified = self.running_mean - self.adder_weight_bias
-            else:
-                running_mean_modified = self.running_mean
-            
-            # Normalize: (running_mean - weight_bias) / sqrt(running_var + eps)
-            bias_norm = (running_mean_modified.view(1, -1, 1, 1)) / (self.running_var.view(1, -1, 1, 1) + self.eps).sqrt()
-            out = x / (self.running_var.view(1, -1, 1, 1) + self.eps).sqrt()
+            # Compute standard deviation
+            running_std = torch.sqrt(self.running_var + self.eps)
             
             if self.affine:
-                # Apply weight (scaling in batchnorm gamma)
-                out = out * self.weight.view(1, -1, 1, 1)
-                # Apply bias (bias term in batchnorm beta)
-                if self.delta is not None:
-                    bias_quantized = self.bias / self.delta
+                # First term: α * x / √(σ² + ε)
+                out = self.weight.view(1, -1, 1, 1) * x / running_std.view(1, -1, 1, 1)
+                
+                # Second term: β/δ - α * (μ - ΣW_bias) / √(σ² + ε)
+                # Note: W_bias is negative, so μ - W_bias = μ + |W_bias|
+                if self.adder_weight_bias is not None:
+                    # Subtract the negative W_bias (which adds the absolute value)
+                    adjusted_mean = self.running_mean - self.adder_weight_bias.to(self.running_mean.device)
                 else:
-                    bias_quantized = self.bias
-                bias_quantized = bias_quantized - self.weight.view(1, -1, 1, 1) * bias_norm
-                out = out + bias_quantized.view(1, -1, 1, 1)
+                    adjusted_mean = self.running_mean
+                
+                # Quantize bias by delta (from post_proc_act_quant.py)
+                bias_quantized = self.bias / self.delta
+                
+                # Complete bias term: β/δ - α * (μ - ΣW_bias) / √(σ² + ε)
+                bias_term = bias_quantized - self.weight * adjusted_mean / running_std
+                
+                # Add bias term
+                out = out + bias_term.view(1, -1, 1, 1)
+            else:
+                # Without affine transformation, just normalize
+                out = x / running_std.view(1, -1, 1, 1)
             
             return out
