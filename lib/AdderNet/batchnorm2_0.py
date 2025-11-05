@@ -24,12 +24,13 @@ class BatchNorm2dWithAdderBias(nn.BatchNorm2d):
             
             if self.adder_weight_bias is not None:
                 # Add weight bias to running mean
-                running_mean_modified = self.running_mean + self.adder_weight_bias
+                running_mean_modified = self.running_mean - self.adder_weight_bias
             else:
                 running_mean_modified = self.running_mean
             
-            # Normalize: (x - (running_mean + weight_bias)) / sqrt(running_var + eps)
-            out = (x - running_mean_modified.view(1, -1, 1, 1)) / (self.running_var.view(1, -1, 1, 1) + self.eps).sqrt()
+            # Normalize: (running_mean - weight_bias) / sqrt(running_var + eps)
+            bias_norm = (running_mean_modified.view(1, -1, 1, 1)) / (self.running_var.view(1, -1, 1, 1) + self.eps).sqrt()
+            out = x / (self.running_var.view(1, -1, 1, 1) + self.eps).sqrt()
             
             if self.affine:
                 # Apply weight (scaling in batchnorm gamma)
@@ -39,6 +40,7 @@ class BatchNorm2dWithAdderBias(nn.BatchNorm2d):
                     bias_quantized = self.bias / self.delta
                 else:
                     bias_quantized = self.bias
+                bias_quantized = bias_quantized - self.weight.view(1, -1, 1, 1) * bias_norm
                 out = out + bias_quantized.view(1, -1, 1, 1)
             
             return out
