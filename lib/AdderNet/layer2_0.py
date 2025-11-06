@@ -9,7 +9,7 @@ class Layer2_0(nn.Module):
     Creates a sequence of residual blocks with adder operations.
     Uses standard BatchNorm2d since FBR preprocessing handles bias fusion offline.
     """
-    def __init__(self, in_channels, out_channels, bits, num_blocks=3):
+    def __init__(self, in_channels, out_channels, num_blocks=3):
         super(Layer2_0, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -20,7 +20,7 @@ class Layer2_0(nn.Module):
         # Create downsample path if channel dimensions change
         if in_channels != out_channels:
             self.downsample_adder = adder2d2_0(in_channels, out_channels, kernel_size=1, 
-                                               bits=bits, stride=2, padding=0, bias=False)
+                                                stride=2, padding=0, bias=False)
             self.downsample_bn = nn.BatchNorm2d(out_channels)
             downsample = (self.downsample_adder, self.downsample_bn)
             stride = 2
@@ -34,14 +34,14 @@ class Layer2_0(nn.Module):
                                             out_channels=out_channels, 
                                             stride=stride, 
                                             downsample=downsample, 
-                                            bits=bits))
+                                            ))
 
         # Remaining blocks (stride=1)
         for _ in range(num_blocks - 1):
             self.blocks.append(ResidualBlock2_0(in_channels=out_channels, 
                                                 out_channels=out_channels, 
                                                 padding=1, 
-                                                bits=bits))
+                                                ))
     
     def forward(self, x):
         out = x

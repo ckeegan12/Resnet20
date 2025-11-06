@@ -82,7 +82,7 @@ class AdderNet2_0(nn.Module):
     """
     AdderNet 2.0 with Fusion Bias Removal (FBR)
     
-    FBR Preprocessing (offline):
+    FBR Preprocessing:
     - Adder weights → quantized integers: W_clip ∈ [-2^(q-1), 2^(q-1)-1]
     - BatchNorm running_mean → adjusted: μ' = round(μ/δ) + Σ|W_q - W_clip|
     - BatchNorm bias → quantized: β' = β/δ
@@ -93,9 +93,8 @@ class AdderNet2_0(nn.Module):
     - BatchNorm: Y = γ * (X - μ') / √(σ² + ε) + β'
     - The weight bias is implicitly handled via the adjusted running_mean
     """
-    def __init__(self, bits, num_classes=10, load_weights=None):
+    def __init__(self, num_classes=10, load_weights=None):
         super(AdderNet2_0, self).__init__()
-        self.bits = bits
 
         # Initial convolution layer (standard conv, not quantized)
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
@@ -103,9 +102,9 @@ class AdderNet2_0(nn.Module):
         self.relu = nn.ReLU()
         
         # Quantized adder layers with FBR
-        self.layer1 = Layer2_0(16, 16, num_blocks=3, bits=bits)
-        self.layer2 = Layer2_0(16, 32, num_blocks=3, bits=bits)
-        self.layer3 = Layer2_0(32, 64, num_blocks=3, bits=bits)
+        self.layer1 = Layer2_0(16, 16, num_blocks=3)
+        self.layer2 = Layer2_0(16, 32, num_blocks=3)
+        self.layer3 = Layer2_0(32, 64, num_blocks=3)
         
         # Fully connected layer
         self.fc = nn.Conv2d(64, num_classes, 1, bias=False)

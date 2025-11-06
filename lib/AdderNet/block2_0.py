@@ -8,16 +8,16 @@ class ResidualBlock2_0(nn.Module):
     Uses standard BatchNorm2d since the FBR preprocessing (post_proc_act_quant.py) 
     adjusts the BatchNorm parameters offline. No dynamic weight bias adjustment needed.
     """
-    def __init__(self, in_channels, out_channels, bits, kernel_size=3, 
+    def __init__(self, in_channels, out_channels, kernel_size=3, 
                  stride=1, padding=1, downsample=None):
         super(ResidualBlock2_0, self).__init__()
         
-        self.adder1 = adder2d2_0(in_channels, out_channels, kernel_size, bits, 
+        self.adder1 = adder2d2_0(in_channels, out_channels, kernel_size, 
                                  stride=stride, padding=padding, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU()
         
-        self.adder2 = adder2d2_0(out_channels, out_channels, kernel_size, bits, 
+        self.adder2 = adder2d2_0(out_channels, out_channels, kernel_size, 
                                  stride=1, padding=padding, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)
         
