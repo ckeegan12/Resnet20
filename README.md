@@ -7,14 +7,14 @@
 
 This repository implements **AdderNet 2.0**, a multiplication-free neural network architecture that achieves **top-1 accuracy comparable to CNNs** while using only addition operations. Implementation features:
 
-- **High Accuracy**: ResNet-20 achieves **competitive top-1 accuracy** on CIFAR-10 with INT6 quantization
+- **High Accuracy**: AdderNet2.0 **competitive top-1 accuracy** on CIFAR-10
 - **Efficient Operations**: Replaces costly MAC operations with efficient SAD (Sum of Absolute Differences)
 - **Novel Quantization**: Activation-Oriented Quantization (AOQ) enables INT6 precision
 - **Memory Optimization**: Fused Bias Removal (FBR) reduces on-chip memory requirements
 
 ## 📊 Key Features
 
-AdderNet 2.0 achieves **top-1 accuracy of 90.83% on CIFAR-10** using ResNet-20 architecture while using efficient INT6 quantization.
+AdderNet 2.0 achieves **Accuracy of 90.83% on CIFAR-10** using ResNet-20 architecture while using efficient INT6 quantization.
 
 ## 🧮 Mathematical Foundation
 
