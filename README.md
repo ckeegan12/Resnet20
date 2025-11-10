@@ -10,7 +10,7 @@ This repository implements **AdderNet 2.0**, a multiplication-free neural networ
 - **High Accuracy**: AdderNet2.0 **competitive top-1 accuracy** on CIFAR-10
 - **Efficient Operations**: Replaces costly MAC operations with efficient SAD (Sum of Absolute Differences)
 - **Novel Quantization**: Activation-Oriented Quantization (AOQ) enables INT6 precision
-- **Memory Optimization**: Fused Bias Removal (FBR) reduces on-chip memory requirements
+- **Memory Optimization**: Fused Bias Removal (FBR) reduces on-chip memory requirements with a theoretical memory reduction of 81.25% (≈5.33× smaller)
 
 ## 📊 Key Features
 
