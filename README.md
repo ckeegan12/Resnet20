@@ -144,8 +144,8 @@ Each AdderBlock uses:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/addernet2.0.git
-cd addernet2.0
+git clone https://github.com/ckeegan12/Resnet20_Addernet.git
+cd Resnet20_Addernet
 
 # Create virtual environment
 python -m venv venv
@@ -194,7 +194,7 @@ from lib.AdderNet.quantization_encoder import Quant
 # Quantize weights (INT6)
 quantized_weights, scale = Quant.symmetric_quantization(weight_tensor, bits=6)
 ```
-
+**Note** Inference and training were ran on google colab using the T4 GPU to speed up execution time
 ## 📁 Repository Structure
 
 ```
