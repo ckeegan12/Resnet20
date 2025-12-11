@@ -6,12 +6,14 @@
 
 // ----------------- Weight & BN headers (you must provide these) -----------------
 // +-+-+-+-+----------------- Layer 1 -----------------+-+-+-+-+-+-+-+
+#include "Layer_1_header/initial_conv_adder.h"
 #include "Layer_1_header/layer1_0_conv1_adder.h"
 #include "Layer_1_header/layer1_0_conv2_adder.h"
 #include "Layer_1_header/layer1_1_conv1_adder.h"
 #include "Layer_1_header/layer1_1_conv2_adder.h"
 #include "Layer_1_header/layer1_2_conv1_adder.h"
 #include "Layer_1_header/layer1_2_conv2_adder.h"
+
 
 // +-+-+-+-+----------------- Layer 2 -----------------+-+-+-+-+-+-+-+
 #include "Layer_2_header/layer2_0_downsample_0_adder.h"
@@ -136,6 +138,64 @@ static void padding2(input_t D[CH3][H3][W3], input_t IFM[CH3][H3+2][W3+2]) {
         }
     }
 }
+
+// ----------------- Layer reshape helpers -----------------
+// Layer 2: Copy 16-channel slice into 32-channel output at offset (slice * 16)
+void lay2_reshape(input_t IFM1[16][H2][W2], input_t OFM[CH2][H2][W2], int slice) {
+#pragma HLS INLINE off
+    int base_ch = slice * 16;
+    for (int c = 0; c < 16; c++) {
+        for (int i = 0; i < H2; i++) {
+            for (int j = 0; j < W2; j++) {
+#pragma HLS PIPELINE
+                OFM[base_ch + c][i][j] = IFM1[c][i][j];
+            }
+        }
+    }
+}
+
+// Layer 2 downsample: Downsample from H1xW1 to H2xW2 with stride-2, place at slice offset
+void lay2_reshape_down(input_t IFM1[CH1][H1][W1], input_t OFM[CH2][H2][W2], int slice) {
+#pragma HLS INLINE off
+    int base_ch = slice * CH1;
+    for (int c = 0; c < CH1; c++) {
+        for (int i = 0; i < H2; i++) {
+            for (int j = 0; j < W2; j++) {
+#pragma HLS PIPELINE
+                OFM[base_ch + c][i][j] = IFM1[c][i * 2][j * 2];
+            }
+        }
+    }
+}
+
+// Layer 3: Copy 16-channel slice into 64-channel output at offset (slice * 4)
+void lay3_reshape(input_t IFM1[16][H3][W3], input_t OFM[CH3][H3][W3], int slice) {
+#pragma HLS INLINE off
+    int base_ch = slice * 4;
+    for (int c = 0; c < 4; c++) {
+        for (int i = 0; i < H3; i++) {
+            for (int j = 0; j < W3; j++) {
+#pragma HLS PIPELINE
+                OFM[base_ch + c][i][j] = IFM1[c][i][j];
+            }
+        }
+    }
+}
+
+// Layer 3 downsample: Downsample from H2xW2 to H3xW3 with stride-2, place at slice offset
+void lay3_reshape_down(input_t IFM1[CH1][H2][W2], input_t OFM[CH3][H3][W3], int slice) {
+#pragma HLS INLINE off
+    int base_ch = slice * CH1;
+    for (int c = 0; c < CH1; c++) {
+        for (int i = 0; i < H3; i++) {
+            for (int j = 0; j < W3; j++) {
+#pragma HLS PIPELINE
+                OFM[base_ch + c][i][j] = IFM1[c][i * 2][j * 2];
+            }
+        }
+    }
+}
+
 
 // ----------------- PEs (use shaped header arrays directly) -----------------
 static void PE0_16_16_adder(input_t IFM[CH1][H1+2][W1+2], const weight_t WBUF[CH1][CH1][3][3], input_t OFM[CH1][H1][W1]) {
