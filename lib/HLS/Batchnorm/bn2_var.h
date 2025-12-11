@@ -3,12 +3,10 @@
 
 #include "../parameters.h"
 
-// BatchNorm2 running variance for FC output layer
-// Dimensions: 10 classes
+// BatchNorm2 var - 10 classes
 
 const input_t bn2_var[10] = {
-    // Placeholder - populate with export_weights_hls.py
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    0.001973032485693693, 0.0017298171296715736, 0.0017881852108985186, 0.0015875784447416663, 0.001752347918227315, 0.0018854986410588026, 0.0021617261227220297, 0.0019735649693757296, 0.002144507598131895, 0.0020645440090447664
 };
 
 #endif // BN2_VAR_H

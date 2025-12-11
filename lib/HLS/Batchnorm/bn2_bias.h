@@ -3,12 +3,10 @@
 
 #include "../parameters.h"
 
-// BatchNorm2 bias (beta) for FC output layer
-// Dimensions: 10 classes
+// BatchNorm2 bias - 10 classes
 
 const input_t bn2_bias[10] = {
-    // Placeholder - populate with export_weights_hls.py
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    -0.08269979059696198, -0.10356366634368896, 0.08431066572666168, 0.17059768736362457, -0.005064851604402065, 0.22108328342437744, -0.11210933327674866, -0.06539970636367798, -0.11062079668045044, 0.003480326384305954
 };
 
 #endif // BN2_BIAS_H

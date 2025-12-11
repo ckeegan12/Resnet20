@@ -3,12 +3,10 @@
 
 #include "../parameters.h"
 
-// BatchNorm2 running mean for FC output layer
-// Dimensions: 10 classes
+// BatchNorm2 mean - 10 classes
 
 const input_t bn2_mean[10] = {
-    // Placeholder - populate with export_weights_hls.py
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    0.0025346684269607067, 0.025973109528422356, -0.015809515491127968, 0.00604747561737895, -0.011824483051896095, 0.06093995273113251, 0.004152260255068541, 0.0036757634952664375, 0.04403900355100632, 0.03900939226150513
 };
 
 #endif // BN2_MEAN_H

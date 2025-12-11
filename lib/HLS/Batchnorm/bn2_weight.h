@@ -3,12 +3,10 @@
 
 #include "../parameters.h"
 
-// BatchNorm2 weight (gamma) for FC output layer
-// Dimensions: 10 classes
+// BatchNorm2 weight - 10 classes
 
 const input_t bn2_weight[10] = {
-    // Placeholder - populate with export_weights_hls.py
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    3.267909288406372, 3.4892892837524414, 3.171323299407959, 2.886173725128174, 3.290379285812378, 3.2014057636260986, 3.471468687057495, 3.410651922225952, 3.442180871963501, 3.473442792892456
 };
 
 #endif // BN2_WEIGHT_H
