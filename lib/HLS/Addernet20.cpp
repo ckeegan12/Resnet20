@@ -60,6 +60,7 @@ static input_t ADD2[CH3][H3][W3];
 static input_t OFM_out_3[CH3][H3][W3];
 static input_t OFM_out_4[CH3][H3][W3];
 static input_t padded2[CH3][H3+2][W3+2];
+static result_t part_ofm2[4][H3][W3];
 
 static weight_t WBUF3x3_16x16[CH1][CH1][3][3];
 static weight_t WBUF3x3_16x32[CH1][CH2][3][3];
