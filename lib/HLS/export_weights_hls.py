@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Export AdderNet 2.0 weights to C headers for Vitis HLS
 Exports as UNSIGNED int5 (range 0-31) for ap_uint<5>
